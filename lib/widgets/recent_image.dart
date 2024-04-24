@@ -11,7 +11,7 @@ class RecentImage extends StatefulWidget {
   State<RecentImage> createState() => _RecentImageState();
 }
 
-Future<List<AssetEntity>> getRecentImages() async {
+Future<List<AssetEntity>> _getRecentImages() async {
   final paths = await PhotoManager.getAssetPathList(
       onlyAll: true,
       type: RequestType.image,
@@ -31,7 +31,11 @@ class _RecentImageState extends State<RecentImage> {
   @override
   void initState() {
     super.initState();
-    getRecentImages().then((images) {
+    _setRecentImages();
+  }
+
+  void _setRecentImages() {
+    _getRecentImages().then((images) {
       setState(() {
         recentImages = images;
       });
@@ -40,16 +44,20 @@ class _RecentImageState extends State<RecentImage> {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 15,
-            mainAxisSpacing: 15,
-            childAspectRatio: 4 / 3),
-        physics: const BouncingScrollPhysics(),
-        itemCount: recentImages.length,
-        itemBuilder: (BuildContext context, int index) =>
-            photo(recentImages[index]));
+    return RefreshIndicator(
+        child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 15,
+                mainAxisSpacing: 15,
+                childAspectRatio: 4 / 3),
+            physics: const BouncingScrollPhysics(),
+            itemCount: recentImages.length,
+            itemBuilder: (BuildContext context, int index) =>
+                photo(recentImages[index])),
+        onRefresh: () async {
+          _setRecentImages();
+        });
   }
 
   Widget photo(AssetEntity entity) {
@@ -62,7 +70,7 @@ class _RecentImageState extends State<RecentImage> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => Emotion(
-                                  image: ImageService.getImageProperties(image),
+                                  image: image,
                                 )))
                   }
               });

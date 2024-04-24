@@ -79,8 +79,8 @@ class _FaceState extends State<Face> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              width: widget.image['showWidth'] + .0,
-              height: widget.image['showHeight'] + .0,
+              width: widget.image['showWidth'],
+              height: widget.image['showHeight'],
               child: Stack(
                 children: [
                   Positioned.fill(
@@ -98,7 +98,10 @@ class _FaceState extends State<Face> {
                           border: Border.all(color: Colors.cyan, width: 2.0),
                         ),
                         child: Text("${index + 1}",
-                            style: const TextStyle(color: Colors.cyan, fontSize: 10, fontWeight: FontWeight.w500)),
+                            style: const TextStyle(
+                                color: Colors.cyan,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500)),
                       ),
                     );
                   })
@@ -120,60 +123,67 @@ class _FaceState extends State<Face> {
           height: 50,
         ),
         Expanded(
-            child: ListView(
-          physics: const BouncingScrollPhysics(),
-          children: List.generate(
-              faces.length,
-              (index) => Padding(
-                    padding: const EdgeInsets.only(bottom: 30),
-                    child: Table(
-                      border: TableBorder.all(color: const Color.fromRGBO(77, 114, 152, 1)),
-                      children: [
-                        TableRow(children: [
-                          SizedBox(
-                            height: 50,
-                            child: Center(
-                                child: Text('Face ${index + 1}',
-                                    style: const TextStyle(
-                                        color: Colors.white, fontSize: 20))),
+          child: RefreshIndicator(
+              onRefresh: () async {},
+              child: ListView(
+                physics: const BouncingScrollPhysics(),
+                children: List.generate(
+                    faces.length,
+                    (index) => Padding(
+                          padding: const EdgeInsets.only(bottom: 30),
+                          child: Table(
+                            border: TableBorder.all(
+                                color: const Color.fromRGBO(77, 114, 152, 1)),
+                            children: [
+                              TableRow(children: [
+                                SizedBox(
+                                  height: 50,
+                                  child: Center(
+                                      child: Text('Face ${index + 1}',
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20))),
+                                ),
+                              ]),
+                              ...faces[index]['emotion'].entries.map((entry) {
+                                final String value =
+                                    entry.value.toStringAsFixed(2);
+                                final String key = entry.key;
+                                return TableRow(children: [
+                                  TableCell(
+                                      child: Table(
+                                    border: const TableBorder(
+                                        verticalInside: BorderSide(
+                                            color: Color.fromRGBO(
+                                                77, 114, 152, 1))),
+                                    children: [
+                                      TableRow(children: [
+                                        SizedBox(
+                                          height: 50,
+                                          child: Center(
+                                              child: Text(key,
+                                                  style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 15))),
+                                        ),
+                                        SizedBox(
+                                          height: 50,
+                                          child: Center(
+                                              child: Text('$value%',
+                                                  style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 15))),
+                                        ),
+                                      ])
+                                    ],
+                                  ))
+                                ]);
+                              })
+                            ],
                           ),
-                        ]),
-                        ...faces[index]['emotion'].entries.map((entry) {
-                          final String value = entry.value.toStringAsFixed(2);
-                          final String key = entry.key;
-                          return TableRow(children: [
-                            TableCell(
-                                child: Table(
-                              border: const TableBorder(
-                                  verticalInside:
-                                      BorderSide(color: Color.fromRGBO(77, 114, 152, 1))),
-                              children: [
-                                TableRow(children: [
-                                  SizedBox(
-                                    height: 50,
-                                    child: Center(
-                                        child: Text(key,
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 15))),
-                                  ),
-                                  SizedBox(
-                                    height: 50,
-                                    child: Center(
-                                        child: Text('$value%',
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 15))),
-                                  ),
-                                ])
-                              ],
-                            ))
-                          ]);
-                        })
-                      ],
-                    ),
-                  )),
-        ))
+                        )),
+              )),
+        )
       ],
     );
   }

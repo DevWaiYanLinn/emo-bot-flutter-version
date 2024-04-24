@@ -1,18 +1,18 @@
-import 'package:image/image.dart' as img;
+import 'package:image/image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class ImageService {
-  static Map<String, Object> getImageProperties(image) {
-    int width = 300;
-    int height = ((width / image.width) * image.height).round();
-    int showWidth = 200;
-    int showHeight =( (showWidth / width) * height).round();
+  static Map<String, Object> processingImage(image) {
+    double width = 300;
+    Image resize =
+        copyResize(image, width: width.toInt(), maintainAspect: true);
+    double height = resize.height.toDouble();
+    double showWidth = 200;
+    double showHeight = ((showWidth / width) * height).toDouble();
     double scaleWidth = showWidth / width;
     double scaleHeight = showHeight / height;
-    img.Image resizedImage =
-        img.copyResize(image, width: width, height: height);
-    List<int> compressedBytes = img.encodePng(resizedImage);
+    List<int> compressedBytes = encodePng(resize);
     return {
       'data': compressedBytes,
       'width': width,
@@ -24,24 +24,25 @@ class ImageService {
     };
   }
 
-  static Future<Map<String, Object>?> pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? pickImage =
-        await picker.pickImage(source: ImageSource.gallery);
-    if (pickImage == null) return null;
-    final image = await img.decodeImageFile(pickImage.path);
-    if (image != null) {
-      return getImageProperties(image);
+  static Future<Map<String, Object>?> getImageProperties(path) async {
+    try {
+      final image = await decodeImageFile(path);
+      return processingImage(image);
+    } catch (e) {
+      return null;
     }
-    return null;
   }
 
-  static Future<img.Image?> entityToImage(AssetEntity entity) async {
+  static Future<Map<String, Object>?> pickImage(
+      {source = ImageSource.gallery}) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickImage =
+        await picker.pickImage(source:source);
+    return getImageProperties(pickImage?.path);
+  }
+
+  static Future<Map<String, Object>?> entityToImage(AssetEntity entity) async {
     final file = await entity.loadFile();
-    if (file != null) {
-      final image = img.decodeImageFile(file.path);
-      return image;
-    }
-    return null;
+    return getImageProperties(file?.path);
   }
 }

@@ -3,6 +3,7 @@ import 'package:emobot/services/image_service.dart';
 import 'package:emobot/widgets/recent_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -15,7 +16,7 @@ class Home extends StatelessWidget {
             child: Scaffold(
                 backgroundColor: Colors.black,
                 body: Padding(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -49,7 +50,7 @@ class Home extends StatelessWidget {
                           child: const Text('Recent Images',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 30,
+                                  fontSize: 25,
                                   color: Colors.white)),
                         ),
                         const Expanded(child: RecentImage())
@@ -61,18 +62,33 @@ class Home extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-            child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: const Color.fromRGBO(77, 114, 152, 1),
-                ),
-                height: 150,
-                child: const Center(
-                    child: Icon(
-                  Icons.camera_enhance,
-                  color: Colors.white,
-                  size: 50,
-                )))),
+            child: GestureDetector(
+                onTap: () => {
+                      ImageService.pickImage(source: ImageSource.camera)
+                          .then((image) => {
+                                if (image != null)
+                                  {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => Emotion(
+                                                  image: image,
+                                                )))
+                                  }
+                              })
+                    },
+                child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: const Color.fromRGBO(77, 114, 152, 1),
+                    ),
+                    height: 150,
+                    child: const Center(
+                        child: Icon(
+                      Icons.camera_enhance,
+                      color: Colors.white,
+                      size: 50,
+                    ))))),
         const SizedBox(width: 20),
         Expanded(
             child: GestureDetector(
