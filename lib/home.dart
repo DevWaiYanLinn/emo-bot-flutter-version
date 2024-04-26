@@ -1,4 +1,5 @@
 import 'package:emobot/widgets/safe_area_view.dart';
+import 'package:flutter/widgets.dart';
 import 'package:image/image.dart' as img;
 import 'package:emobot/emotion.dart';
 import 'package:emobot/widgets/recent_image.dart';
@@ -32,39 +33,40 @@ class Home extends StatelessWidget {
         child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 130,
-                  height: 130,
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: Image.asset('assets/images/logo.png',
-                            filterQuality: FilterQuality.high,
-                            fit: BoxFit.cover),
-                      ),
-                    ],
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 130,
+              height: 130,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: Image.asset('assets/images/logo.png',
+                        filterQuality: FilterQuality.high,
+                        fit: BoxFit.cover),
                   ),
-                ),
-                const Icon(Icons.settings, color: Colors.white, size: 40)
-              ],
-            )),
+                ],
+              ),
+            ),
+            const Icon(Icons.settings, color: Colors.white, size: 40)
+          ],
+        ),
+        const SizedBox(
+            child: Text('Emotbot AI Emotion Detector',
+                style: TextStyle(color: Colors.white, fontSize: 23 ,fontWeight: FontWeight.normal))),
         Container(
             margin: const EdgeInsets.only(bottom: 10),
-            child: const Text('Emotbot AI emotion detector',
-                style: TextStyle(color: Colors.white, fontSize: 20 ,fontWeight: FontWeight.bold))),
+            child: const Text('What are you waiting for?',
+                style: TextStyle(color: Colors.white, fontSize: 15 ,fontWeight: FontWeight.normal))),
         featureWiget(context),
         Container(
           margin: const EdgeInsets.only(top: 10, bottom: 10),
-          child: const Text('Recent Images',
+          child: const Text('Recent Image',
               style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
+                  fontWeight: FontWeight.normal,
+                  fontSize: 23,
                   color: Colors.white)),
         ),
         const Expanded(child: RecentImage())

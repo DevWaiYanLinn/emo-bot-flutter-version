@@ -64,7 +64,7 @@ class _RecentImageState extends State<RecentImage> {
                 crossAxisCount: 3,
                 crossAxisSpacing: 15,
                 mainAxisSpacing: 15,
-                childAspectRatio: 0.95),
+                childAspectRatio: 1),
             physics: const BouncingScrollPhysics(),
             itemCount: recentImages.length,
             itemBuilder: (BuildContext context, int index) =>

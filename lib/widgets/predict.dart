@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:lottie/lottie.dart';
 
 class Predict extends StatefulWidget {
   final Map<String, dynamic> image;
@@ -24,7 +25,7 @@ class _FaceState extends State<Predict> {
     double height = (200 / widget.image['width']) * widget.image['height'];
     double rescaleHight = height / widget.image['height'];
     double rescaleWidth = 200.0 / widget.image['width'];
-    rescaleDimensions =  [rescaleWidth,rescaleHight];
+    rescaleDimensions = [rescaleWidth, rescaleHight];
     dimensions = [200, height];
     fetchData();
   }
@@ -93,6 +94,14 @@ class _FaceState extends State<Predict> {
                       child: Image.memory(
                     widget.image['data'],
                   )),
+                  if (faces.isEmpty && message.isEmpty)
+                    Positioned(
+                        top: 0,
+                        left: 0,
+                        width: dimensions[0],
+                        height: dimensions[1],
+                        child: Lottie.asset('assets/lottie/scanning.json',
+                            frameRate: const FrameRate(60))),
                   ...List.generate(faceboxes.length, (index) {
                     return Positioned(
                       left: faceboxes[index]['x'],
@@ -151,7 +160,18 @@ class _FaceState extends State<Predict> {
                                               fontSize: 15))),
                                 ),
                               ]),
-                              ...faces[index]['emotion'].entries.map((entry) {
+                              ..._emotionList(faces[index]['emotion'])
+                            ],
+                          ),
+                        )),
+              )),
+        )
+      ],
+    );
+  }
+
+  List<TableRow> _emotionList(Map<String, dynamic> emotion) {
+        return emotion.entries.map((entry) {
                                 final String value =
                                     entry.value.toStringAsFixed(2);
                                 final String key = entry.key;
@@ -184,13 +204,6 @@ class _FaceState extends State<Predict> {
                                     ],
                                   ))
                                 ]);
-                              })
-                            ],
-                          ),
-                        )),
-              )),
-        )
-      ],
-    );
+                              }).toList();
   }
 }

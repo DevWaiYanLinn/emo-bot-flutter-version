@@ -43,6 +43,8 @@ dependencies:
   photo_manager: ^3.0.0
   image_picker: ^1.1.0
   photo_manager_image_provider: ^2.1.1
+  google_fonts: ^6.2.1
+  lottie: ^3.1.0
 
 dev_dependencies:
   flutter_test:
@@ -69,6 +71,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/logo.png
+    - assets/lottie/scanning.json
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
