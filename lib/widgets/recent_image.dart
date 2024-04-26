@@ -1,6 +1,6 @@
 import 'package:emobot/emotion.dart';
-import 'package:emobot/services/image_service.dart';
 import 'package:flutter/material.dart';
+import 'package:image/image.dart' as img;
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
@@ -11,27 +11,27 @@ class RecentImage extends StatefulWidget {
   State<RecentImage> createState() => _RecentImageState();
 }
 
-Future<List<AssetEntity>> _getRecentImages() async {
-  final paths = await PhotoManager.getAssetPathList(
-      onlyAll: true,
-      type: RequestType.image,
-      filterOption: FilterOptionGroup(orders: [
-        const OrderOption(
-          type: OrderOptionType.createDate,
-          asc: false,
-        ),
-      ]));
-  final recentAlbum = paths.first;
-  final recentAssets = await recentAlbum.getAssetListPaged(page: 0, size: 50);
-  return recentAssets;
-}
-
 class _RecentImageState extends State<RecentImage> {
   List<dynamic> recentImages = [];
   @override
   void initState() {
     super.initState();
     _setRecentImages();
+  }
+
+  Future<List<AssetEntity>> _getRecentImages() async {
+    final paths = await PhotoManager.getAssetPathList(
+        onlyAll: true,
+        type: RequestType.image,
+        filterOption: FilterOptionGroup(orders: [
+          const OrderOption(
+            type: OrderOptionType.createDate,
+            asc: false,
+          ),
+        ]));
+    final recentAlbum = paths.first;
+    final recentAssets = await recentAlbum.getAssetListPaged(page: 0, size: 50);
+    return recentAssets;
   }
 
   void _setRecentImages() {
@@ -42,6 +42,20 @@ class _RecentImageState extends State<RecentImage> {
     });
   }
 
+  Future<Map<String, dynamic>?> _loadFile(AssetEntity entity) async {
+    final file = await entity.loadFile();
+    if (file != null) {
+      final decodeImage = await img.decodeImageFile(file.path) as img.Image;
+      final resize = img.copyResize(decodeImage, width: 300);
+      return {
+        'data': img.encodePng(resize),
+        'width': resize.width,
+        'height': resize.height
+      };
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
@@ -50,30 +64,29 @@ class _RecentImageState extends State<RecentImage> {
                 crossAxisCount: 3,
                 crossAxisSpacing: 15,
                 mainAxisSpacing: 15,
-                childAspectRatio: 4 / 3),
+                childAspectRatio: 0.95),
             physics: const BouncingScrollPhysics(),
             itemCount: recentImages.length,
             itemBuilder: (BuildContext context, int index) =>
-                photo(recentImages[index])),
+                photo(recentImages[index], context)),
         onRefresh: () async {
           _setRecentImages();
         });
   }
 
-  Widget photo(AssetEntity entity) {
+  Widget photo(AssetEntity entity, BuildContext context) {
     return GestureDetector(
         onTap: () async {
-          ImageService.entityToImage(entity).then((image) => {
-                if (image != null)
-                  {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => Emotion(
-                                  image: image,
-                                )))
-                  }
-              });
+          _loadFile(entity).then((file) {
+            if (file != null) {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Emotion(
+                            image: file,
+                          )));
+            }
+          });
         },
         child: AssetEntityImage(entity,
             isOriginal: false, // Defaults to `true`.

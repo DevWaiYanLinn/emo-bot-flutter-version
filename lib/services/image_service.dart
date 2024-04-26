@@ -37,7 +37,7 @@ class ImageService {
       {source = ImageSource.gallery}) async {
     final ImagePicker picker = ImagePicker();
     final XFile? pickImage =
-        await picker.pickImage(source:source);
+        await picker.pickImage(source:source, maxWidth: 300);
     return getImageProperties(pickImage?.path);
   }
 

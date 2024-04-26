@@ -1,6 +1,6 @@
-import 'package:emobot/widgets/face.dart';
+import 'package:emobot/widgets/predict.dart';
+import 'package:emobot/widgets/safe_area_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class Emotion extends StatelessWidget {
   final Map<String, dynamic> image;
@@ -8,13 +8,6 @@ class Emotion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: AnnotatedRegion(
-            value: const SystemUiOverlayStyle(statusBarColor: Colors.black),
-            child: Scaffold(
-                backgroundColor: Colors.black,
-                body: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Face(image: image)))));
+    return SafeAreaView(child: Predict(image: image));
   }
 }

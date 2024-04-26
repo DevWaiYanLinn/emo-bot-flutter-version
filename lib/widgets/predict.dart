@@ -4,21 +4,28 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
-class Face extends StatefulWidget {
+class Predict extends StatefulWidget {
   final Map<String, dynamic> image;
-  const Face({super.key, required this.image});
+  const Predict({super.key, required this.image});
   @override
-  State<Face> createState() => _FaceState();
+  State<Predict> createState() => _FaceState();
 }
 
-class _FaceState extends State<Face> {
+class _FaceState extends State<Predict> {
   List<dynamic> faces = [];
   List<dynamic> faceboxes = [];
+  List<double> dimensions = [];
+  List<double> rescaleDimensions = [];
   String message = '';
 
   @override
   void initState() {
     super.initState();
+    double height = (200 / widget.image['width']) * widget.image['height'];
+    double rescaleHight = height / widget.image['height'];
+    double rescaleWidth = 200.0 / widget.image['width'];
+    rescaleDimensions =  [rescaleWidth,rescaleHight];
+    dimensions = [200, height];
     fetchData();
   }
 
@@ -41,10 +48,10 @@ class _FaceState extends State<Face> {
       final faceList = jsonDecode(responseBody) as List;
       if (faceList.isNotEmpty) {
         List<dynamic> retangle = faceList.map((e) {
-          double x = e['region']['x'] * widget.image['scaleWidth'];
-          double y = e['region']['y'] * widget.image['scaleHeight'];
-          double w = e['region']['w'] * widget.image['scaleWidth'];
-          double h = e['region']['h'] * widget.image['scaleHeight'];
+          double x = e['region']['x'] * rescaleDimensions[0];
+          double y = e['region']['y'] * rescaleDimensions[1];
+          double w = e['region']['w'] * rescaleDimensions[0];
+          double h = e['region']['h'] * rescaleDimensions[1];
           return {
             'x': x,
             'y': y,
@@ -78,8 +85,8 @@ class _FaceState extends State<Face> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              width: widget.image['showWidth'],
-              height: widget.image['showHeight'],
+              width: dimensions[0],
+              height: dimensions[1],
               child: Stack(
                 children: [
                   Positioned.fill(
@@ -141,7 +148,7 @@ class _FaceState extends State<Face> {
                                       child: Text('Face ${index + 1}',
                                           style: const TextStyle(
                                               color: Colors.white,
-                                              fontSize: 20))),
+                                              fontSize: 15))),
                                 ),
                               ]),
                               ...faces[index]['emotion'].entries.map((entry) {
