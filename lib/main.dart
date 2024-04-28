@@ -12,7 +12,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-          fontFamily: GoogleFonts.roboto().fontFamily,
+          fontFamily: GoogleFonts.spaceMono().fontFamily,
           textTheme:
               const TextTheme(bodyLarge: TextStyle(color: Colors.white))),
       home: const Home(),

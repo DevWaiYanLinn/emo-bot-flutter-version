@@ -1,30 +1,23 @@
 import 'package:emobot/widgets/safe_area_view.dart';
-import 'package:flutter/widgets.dart';
-import 'package:image/image.dart' as img;
 import 'package:emobot/emotion.dart';
 import 'package:emobot/widgets/recent_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
 
-  Future<Map<String, dynamic>?> _pickImage(
-      {source = ImageSource.gallery}) async {
+  Future<String?> _pickImage({source = ImageSource.gallery}) async {
     final ImagePicker picker = ImagePicker();
-    final XFile? pickImage = await picker.pickImage(source: source);
-
-    if (pickImage != null) {
-      final decodeImage =
-          await img.decodeImageFile(pickImage.path) as img.Image;
-      final resize = img.copyResize(decodeImage, width: 300);
-      return {
-        'data': img.encodePng(resize),
-        'width': resize.width,
-        'height': resize.height
-      };
+    if (source == ImageSource.camera) {
+      final request = await Permission.camera.request();
+      if (request.isDenied) {
+        return null;
+      }
     }
-    return null;
+    final XFile? pickImage = await picker.pickImage(source: source);
+    return pickImage?.path;
   }
 
   @override
@@ -44,8 +37,7 @@ class Home extends StatelessWidget {
                 children: [
                   Positioned.fill(
                     child: Image.asset('assets/images/logo.png',
-                        filterQuality: FilterQuality.high,
-                        fit: BoxFit.cover),
+                        filterQuality: FilterQuality.high, fit: BoxFit.cover),
                   ),
                 ],
               ),
@@ -54,20 +46,27 @@ class Home extends StatelessWidget {
           ],
         ),
         const SizedBox(
-            child: Text('Emotbot AI Emotion Detector',
-                style: TextStyle(color: Colors.white, fontSize: 23 ,fontWeight: FontWeight.normal))),
+            child: Text('Emobot AI Emotion Detector',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold))),
         Container(
             margin: const EdgeInsets.only(bottom: 10),
             child: const Text('What are you waiting for?',
-                style: TextStyle(color: Colors.white, fontSize: 15 ,fontWeight: FontWeight.normal))),
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold))),
         featureWiget(context),
         Container(
           margin: const EdgeInsets.only(top: 10, bottom: 10),
           child: const Text('Recent Image',
               style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 23,
-                  color: Colors.white)),
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.white,
+              )),
         ),
         const Expanded(child: RecentImage())
       ],
@@ -80,14 +79,14 @@ class Home extends StatelessWidget {
         Expanded(
             child: GestureDetector(
                 onTap: () => {
-                      _pickImage(source: ImageSource.camera).then((image) => {
-                            if (image != null)
+                      _pickImage(source: ImageSource.camera).then((path) => {
+                            if (path != null)
                               {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => Emotion(
-                                              image: image,
+                                              path: path,
                                             )))
                               }
                           })
@@ -97,7 +96,7 @@ class Home extends StatelessWidget {
                       borderRadius: BorderRadius.circular(5),
                       color: const Color.fromRGBO(77, 114, 152, 1),
                     ),
-                    height: 150,
+                    height: 160,
                     child: const Center(
                         child: Icon(
                       Icons.camera_enhance,
@@ -108,14 +107,14 @@ class Home extends StatelessWidget {
         Expanded(
             child: GestureDetector(
                 onTap: () {
-                  _pickImage().then((image) => {
-                        if (image != null)
+                  _pickImage().then((path) => {
+                        if (path != null)
                           {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => Emotion(
-                                          image: image,
+                                          path: path,
                                         )))
                           }
                       });
@@ -125,7 +124,7 @@ class Home extends StatelessWidget {
                       borderRadius: BorderRadius.circular(5),
                       color: const Color.fromARGB(255, 119, 166, 182),
                     ),
-                    height: 150,
+                    height: 160,
                     child: const Center(
                         child: Icon(
                       Icons.image,

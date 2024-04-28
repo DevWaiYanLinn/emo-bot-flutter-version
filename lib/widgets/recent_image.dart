@@ -1,6 +1,6 @@
 import 'package:emobot/emotion.dart';
 import 'package:flutter/material.dart';
-import 'package:image/image.dart' as img;
+import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
@@ -20,6 +20,12 @@ class _RecentImageState extends State<RecentImage> {
   }
 
   Future<List<AssetEntity>> _getRecentImages() async {
+    final permission = await Permission.storage.status;
+
+    if (!permission.isGranted) {
+      await Permission.storage.request();
+    }
+
     final paths = await PhotoManager.getAssetPathList(
         onlyAll: true,
         type: RequestType.image,
@@ -42,18 +48,9 @@ class _RecentImageState extends State<RecentImage> {
     });
   }
 
-  Future<Map<String, dynamic>?> _loadFile(AssetEntity entity) async {
+  Future<String?> _loadFile(AssetEntity entity) async {
     final file = await entity.loadFile();
-    if (file != null) {
-      final decodeImage = await img.decodeImageFile(file.path) as img.Image;
-      final resize = img.copyResize(decodeImage, width: 300);
-      return {
-        'data': img.encodePng(resize),
-        'width': resize.width,
-        'height': resize.height
-      };
-    }
-    return null;
+    return file?.path;
   }
 
   @override
@@ -77,13 +74,13 @@ class _RecentImageState extends State<RecentImage> {
   Widget photo(AssetEntity entity, BuildContext context) {
     return GestureDetector(
         onTap: () async {
-          _loadFile(entity).then((file) {
-            if (file != null) {
+          _loadFile(entity).then((path) {
+            if (path != null) {
               Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => Emotion(
-                            image: file,
+                            path: path,
                           )));
             }
           });

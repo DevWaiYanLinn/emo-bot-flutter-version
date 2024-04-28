@@ -5,7 +5,7 @@ The Emobot Face Expression App is an application designed to detect and interpre
 
 ## Development Status
 - **Framework**: Flutter
-- **Status**: In development
+- **Status**: 90%
 
 ## Usage
 As of now, the Emobot Face Expression App is under active development. You can contribute to its development or test its functionalities. However, please note that it might not be stable for production use yet.
