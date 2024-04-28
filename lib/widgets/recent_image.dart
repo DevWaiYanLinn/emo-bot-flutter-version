@@ -22,8 +22,9 @@ class _RecentImageState extends State<RecentImage> {
   Future<List<AssetEntity>> _getRecentImages() async {
     final permission = await Permission.storage.status;
 
-    if (!permission.isGranted) {
-      await Permission.storage.request();
+    if (!permission.isGranted &&
+        !await Permission.storage.request().isGranted) {
+      return [];
     }
 
     final paths = await PhotoManager.getAssetPathList(

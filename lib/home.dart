@@ -8,15 +8,22 @@ import 'package:permission_handler/permission_handler.dart';
 class Home extends StatelessWidget {
   const Home({super.key});
 
-  Future<String?> _pickImage({source = ImageSource.gallery}) async {
+  Future<String?> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    if (source == ImageSource.camera) {
-      final request = await Permission.camera.request();
-      if (request.isDenied) {
-        return null;
-      }
+    final XFile? pickImage =
+        await picker.pickImage(source: ImageSource.gallery);
+    return pickImage?.path;
+  }
+
+  Future<String?> _pickCameraImage() async {
+    final permission = await Permission.camera.status;
+
+    if (!permission.isGranted && !await Permission.camera.request().isGranted) {
+      return null;
     }
-    final XFile? pickImage = await picker.pickImage(source: source);
+
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickImage = await picker.pickImage(source: ImageSource.camera);
     return pickImage?.path;
   }
 
@@ -30,27 +37,21 @@ class Home extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
+            Image.asset(
+              'assets/images/logo.png',
+              filterQuality: FilterQuality.high,
+              fit: BoxFit.cover,
               width: 130,
               height: 130,
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: Image.asset('assets/images/logo.png',
-                        filterQuality: FilterQuality.high, fit: BoxFit.cover),
-                  ),
-                ],
-              ),
             ),
             const Icon(Icons.settings, color: Colors.white, size: 40)
           ],
         ),
-        const SizedBox(
-            child: Text('Emobot AI Emotion Detector',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold))),
+        const Text('Emobot AI Emotion Detector',
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold)),
         Container(
             margin: const EdgeInsets.only(bottom: 10),
             child: const Text('What are you waiting for?',
@@ -58,7 +59,7 @@ class Home extends StatelessWidget {
                     color: Colors.white,
                     fontSize: 11,
                     fontWeight: FontWeight.bold))),
-        featureWiget(context),
+        _featureWidget(context),
         Container(
           margin: const EdgeInsets.only(top: 10, bottom: 10),
           child: const Text('Recent Image',
@@ -73,13 +74,13 @@ class Home extends StatelessWidget {
     ));
   }
 
-  Widget featureWiget(BuildContext context) {
+  Widget _featureWidget(BuildContext context) {
     return Row(
       children: [
         Expanded(
             child: GestureDetector(
                 onTap: () => {
-                      _pickImage(source: ImageSource.camera).then((path) => {
+                      _pickCameraImage().then((path) => {
                             if (path != null)
                               {
                                 Navigator.push(
